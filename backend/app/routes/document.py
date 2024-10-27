@@ -9,6 +9,7 @@ from app.schemas.document import DocumentMetadataResponse
 from app.dependencies.user import get_current_user
 from app.database import get_db
 from app.schemas.user import UserResponse
+from app.utils.elasticsearch_utils import index_document
 
 router = APIRouter()
 
@@ -41,6 +42,8 @@ async def upload_file(
         db.add(new_document)
         await db.commit()
         await db.refresh(new_document)
+
+        # await index_document(new_document.id, parsed_data, current_user.id)
         
         return new_document
     except Exception as e:
