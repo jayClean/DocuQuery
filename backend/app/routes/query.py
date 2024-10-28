@@ -72,11 +72,11 @@ logger = logging.getLogger(__name__)
 
 @router.get("/", response_model=QueryResult)
 async def search_user_documents(
-    query: QueryRequest,
+    query: str,
     current_user: UserResponse = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    logger.info(f"User {current_user.id} initiated a search with query: {query.query}")
+    logger.info(f"User {current_user.id} initiated a search with query: {query}")
 
     try:
         # Construct the SQL query for PostgreSQL
@@ -85,7 +85,7 @@ async def search_user_documents(
             .where(DocumentMetadata.user_id == current_user.id)
             .where(
                 func.to_tsvector('english', DocumentMetadata.parsed_data).op('@@')(
-                    func.plainto_tsquery('english', query.query)
+                    func.plainto_tsquery('english', query)
                 )
             )
         )
@@ -108,8 +108,12 @@ async def search_user_documents(
             ))
 
         # Use the agent to generate a response based on the query and results
-        user_context = f"User ID: {current_user.id}. Found documents: {', '.join([res.content for res in query_results])}."
-        agent_response = await query_agent(query.query, user_context)
+        # Combine user context and query into a single prompt
+        combined_prompt = f"User context: User ID - {current_user.id}. Found documents: {', '.join([res.content for res in query_results])}. Query: {query}"
+
+        # Send the combined prompt to the agent
+        agent_response = await query_agent(combined_prompt)
+
         print(agent_response)
 
         return {

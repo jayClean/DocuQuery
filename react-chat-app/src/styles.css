@@ -1,0 +1,29 @@
+.chat-box {
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+    padding: 1em;
+  }
+  
+  .messages {
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+  
+  .message.user {
+    align-self: flex-end;
+    background-color: #e6f7ff;
+  }
+  
+  .message.bot {
+    align-self: flex-start;
+    background-color: #f7e6ff;
+  }
+  
+  .input-container, .upload-container {
+    display: flex;
+    gap: 0.5em;
+  }
+  
